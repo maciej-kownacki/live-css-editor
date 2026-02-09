@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Button Test</title>
+  <link rel="stylesheet" href="dist-standalone/style.css?v=4">
+</head>
+<body style="margin: 0; padding: 20px; font-family: Arial; background: #f0f0f0;">
+
+  <h1>Simple Test - Floating Button</h1>
+  <p style="font-size: 20px; color: #333;">
+    <strong>SPRAWDŹ PRAWY DOLNY RÓG EKRANU</strong>
+  </p>
+  <p style="font-size: 18px; color: #666;">
+    Powinien tam być okrągły niebieski przycisk z emoji 🎨
+  </p>
+
+  <div style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+    <h2 style="color: #0066cc;">Test Colorful Elements</h2>
+    <p style="color: #cc0000;">This text is red</p>
+    <p style="color: #00cc00;">This text is green</p>
+    <button style="background: #ff9900; color: white; padding: 10px 20px; border: none; border-radius: 4px;">
+      Orange Button
+    </button>
+  </div>
+
+  <script src="dist-standalone/live-css-editor.standalone.js?v=4" data-auto-init></script>
+
+  <script>
+    console.log('=== CSS Editor Debug ===');
+    setTimeout(() => {
+      console.log('LiveCSSEditor:', window.LiveCSSEditor ? '✅ LOADED' : '❌ NOT LOADED');
+
+      // Check if button exists in DOM
+      const button = document.querySelector('button[data-css-editor-panel][title="Open CSS Editor"]');
+      console.log('Floating Button in DOM:', button ? '✅ FOUND' : '❌ NOT FOUND');
+
+      if (button) {
+        const styles = window.getComputedStyle(button);
+        console.log('Button position:', styles.position);
+        console.log('Button bottom:', styles.bottom);
+        console.log('Button right:', styles.right);
+        console.log('Button display:', styles.display);
+        console.log('Button visibility:', styles.visibility);
+        console.log('Button z-index:', styles.zIndex);
+      }
+    }, 2000);
+  </script>
+
+</body>
+</html>

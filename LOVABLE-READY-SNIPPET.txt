@@ -1,0 +1,61 @@
+═══════════════════════════════════════════════════════════════
+🎨 LIVE CSS EDITOR - GOTOWY PROMPT DLA LOVABLE
+═══════════════════════════════════════════════════════════════
+
+Skopiuj i wklej ten prompt w Lovable:
+
+═══════════════════════════════════════════════════════════════
+
+Dodaj do mojego projektu floating CSS editor button. Wykonaj:
+
+1. W głównym komponencie App lub index.html, dodaj na końcu (przed zamknięciem body lub na końcu return):
+
+```jsx
+{/* CSS Editor - Floating Button */}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@live-css-editor/standalone@latest/style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@live-css-editor/standalone@latest/live-css-editor.js" data-auto-init></script>
+```
+
+UWAGA: Te URL są przykładowe - poczekaj na prawdziwe linki CDN.
+
+2. Alternatywnie, dodaj to w useEffect (dla React):
+
+```jsx
+useEffect(() => {
+  // Load CSS
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'URL_DO_CSS';
+  document.head.appendChild(link);
+
+  // Load JS
+  const script = document.createElement('script');
+  script.src = 'URL_DO_JS';
+  script.setAttribute('data-auto-init', '');
+  document.body.appendChild(script);
+
+  return () => {
+    link.remove();
+    script.remove();
+  };
+}, []);
+```
+
+3. Wynik: Okrągły niebieski przycisk 🎨 pojawi się w prawym dolnym rogu.
+   - Kliknij go żeby otworzyć panel
+   - Zobaczysz listę wykrytych kolorów
+   - Kliknij kolor żeby go zmienić
+
+═══════════════════════════════════════════════════════════════
+
+TYMCZASOWE ROZWIĄZANIE (bez CDN):
+
+Jeśli potrzebujesz testować TERAZ bez czekania na CDN:
+
+1. W Lovable, stwórz plik: public/css-editor.html
+2. Wklej tam zawartość z standalone-example.html
+3. Otwórz /css-editor.html w przeglądarce żeby przetestować
+
+═══════════════════════════════════════════════════════════════
+
+Czekam na Twoje potwierdzenie żeby zahostować pliki publicznie! 🚀

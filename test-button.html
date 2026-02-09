@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Floating Button</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .content {
+      text-align: center;
+      max-width: 600px;
+      padding: 2rem;
+    }
+    h1 { font-size: 3rem; margin: 0 0 1rem 0; }
+    p { font-size: 1.2rem; line-height: 1.6; }
+    .box {
+      background: rgba(255,255,255,0.2);
+      padding: 2rem;
+      border-radius: 16px;
+      margin-top: 2rem;
+    }
+  </style>
+
+  <!-- Load CSS Editor -->
+  <link rel="stylesheet" href="dist-standalone/style.css?v=3">
+</head>
+<body>
+  <div class="content">
+    <h1>🎨 Test Floating Button</h1>
+    <p>Sprawdź <strong>prawy dolny róg</strong> - powinien być tam okrągły niebieski przycisk 🎨</p>
+    <div class="box">
+      <h2 style="margin-top:0">Instrukcja:</h2>
+      <ol style="text-align: left;">
+        <li>Szukaj okrągłego niebieskiego przycisku w prawym dolnym rogu ekranu</li>
+        <li>Kliknij go żeby otworzyć panel edytora</li>
+        <li>W panelu zobaczysz listę kolorów</li>
+        <li>Kliknij na dowolny kolor żeby go zmienić</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Load and auto-initialize the editor with timestamp to force refresh -->
+  <script src="dist-standalone/live-css-editor.standalone.js?v=3" data-auto-init></script>
+
+  <script>
+    // Debug: Check if editor initialized
+    setTimeout(() => {
+      if (window.LiveCSSEditor) {
+        console.log('✅ LiveCSSEditor loaded successfully');
+        console.log('Check bottom-right corner for floating button 🎨');
+      } else {
+        console.error('❌ LiveCSSEditor not loaded');
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

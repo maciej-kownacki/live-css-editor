@@ -1,0 +1,78 @@
+{
+  "name": "@live-css-editor/react",
+  "version": "0.1.0",
+  "description": "React component library for live CSS editing with export capabilities",
+  "type": "module",
+  "main": "./dist/live-css-editor.umd.js",
+  "module": "./dist/live-css-editor.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/live-css-editor.es.js",
+      "require": "./dist/live-css-editor.umd.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:standalone": "vite build --config vite.config.standalone.ts",
+    "build:all": "npm run build && npm run build:standalone",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "keywords": [
+    "react",
+    "css",
+    "editor",
+    "live-editing",
+    "color-picker",
+    "design-tools",
+    "lovable",
+    "tailwind"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "zustand": "^4.5.0",
+    "postcss": "^8.4.35",
+    "postcss-scss": "^4.0.9",
+    "chroma-js": "^2.4.2",
+    "react-colorful": "^5.6.1",
+    "webfontloader": "^1.6.28",
+    "@radix-ui/react-popover": "^1.0.7",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "immer": "^10.0.3",
+    "lodash-es": "^4.17.21",
+    "react-window": "^1.8.10"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@types/chroma-js": "^2.4.3",
+    "@types/webfontloader": "^1.6.38",
+    "@types/lodash-es": "^4.17.12",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.12",
+    "typescript": "^5.3.3",
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.17",
+    "@monaco-editor/react": "^4.6.0",
+    "prettier": "^3.2.4",
+    "eslint": "^8.56.0",
+    "vite-plugin-dts": "^3.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/live-css-editor-react"
+  }
+}

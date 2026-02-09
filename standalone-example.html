@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live CSS Editor - Standalone Example</title>
+
+  <!-- Your regular styles -->
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f0f9ff;
+      color: #1e293b;
+    }
+
+    .header {
+      background-color: #0ea5e9;
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: 2px solid #e0f2fe;
+    }
+
+    .button {
+      background-color: #10b981;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .button:hover {
+      background-color: #059669;
+    }
+
+    .secondary {
+      background-color: #8b5cf6;
+      margin-left: 1rem;
+    }
+
+    .secondary:hover {
+      background-color: #7c3aed;
+    }
+
+    .alert {
+      background-color: #fef3c7;
+      border: 2px solid #fbbf24;
+      border-radius: 8px;
+      padding: 1rem;
+      color: #92400e;
+    }
+
+    h1 { color: #ffffff; margin: 0; }
+    h2 { color: #0ea5e9; }
+    h3 { color: #64748b; }
+
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+
+  <!-- Load the CSS Editor standalone script -->
+  <link rel="stylesheet" href="dist-standalone/style.css?v=4">
+</head>
+<body>
+  <div class="header">
+    <h1>🎨 Live CSS Editor - Standalone Demo</h1>
+    <p>Click the floating panel to start editing colors!</p>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Welcome to the Standalone Version!</h2>
+      <p>This page uses the Live CSS Editor as a single <code>&lt;script&gt;</code> tag - no npm, no build process required!</p>
+      <p>The CSS Editor should appear in the top-right corner. Try these features:</p>
+      <ul>
+        <li>Click any color to edit it with a color picker</li>
+        <li>Enable Inspect Mode to select specific elements</li>
+        <li>Watch changes apply instantly to the page</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Interactive Elements</h3>
+      <p>Try changing the colors of these buttons:</p>
+      <button class="button">Primary Button</button>
+      <button class="button secondary">Secondary Button</button>
+    </div>
+
+    <div class="alert">
+      <h3 style="margin-top: 0;">💡 Pro Tip</h3>
+      <p style="margin-bottom: 0;">Open your browser's DevTools console (F12) to see what's happening behind the scenes!</p>
+    </div>
+
+    <div class="card">
+      <h3>How to Use in Your Project</h3>
+      <p>Just add these two lines before your closing <code>&lt;/body&gt;</code> tag:</p>
+      <pre style="background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto;"><code>&lt;link rel="stylesheet" href="live-css-editor.css"&gt;
+&lt;script src="live-css-editor.standalone.js" data-auto-init&gt;&lt;/script&gt;</code></pre>
+      <p>That's it! The editor will initialize automatically.</p>
+    </div>
+
+    <div class="card">
+      <h3>Or Initialize Manually</h3>
+      <pre style="background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto;"><code>&lt;script src="live-css-editor.standalone.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // Initialize with custom options
+  window.LiveCSSEditor.init({
+    autoAnalyze: true,
+    initiallyOpen: true
+  });
+&lt;/script&gt;</code></pre>
+    </div>
+  </div>
+
+  <!-- Load and auto-initialize the editor -->
+  <script src="dist-standalone/live-css-editor.standalone.js?v=4" data-auto-init></script>
+
+  <!-- OR initialize manually:
+  <script src="dist-standalone/live-css-editor.standalone.js"></script>
+  <script>
+    window.LiveCSSEditor.init({
+      autoAnalyze: true,
+      initiallyOpen: true,
+      containerId: 'live-css-editor-root'
+    });
+  </script>
+  -->
+</body>
+</html>
