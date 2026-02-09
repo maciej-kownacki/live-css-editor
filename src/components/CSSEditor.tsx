@@ -41,6 +41,7 @@ export const CSSEditor: React.FC<CSSEditorProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedColorForEdit, setSelectedColorForEdit] = useState<ColorInfo | null>(null);
   const [inspectHandler] = useState(() => new InspectModeHandler());
+  const [parsedRules, setParsedRules] = useState<any[]>([]);
   const styleInjector = useStyleInjector();
 
   useEffect(() => {
@@ -69,6 +70,9 @@ export const CSSEditor: React.FC<CSSEditorProps> = ({
       const parsed = await analyzer.analyzeDocument();
 
       console.log('[CSS Editor] Parsed CSS:', parsed);
+
+      // Store parsed rules for selector lookup during color changes
+      setParsedRules(parsed.rules);
 
       const extractor = new ColorExtractor();
       const extractedColors = extractor.extractAndRankColors(parsed.rules);
@@ -104,11 +108,38 @@ export const CSSEditor: React.FC<CSSEditorProps> = ({
     }
   };
 
+  // Generate a unique CSS selector for an element
+  const generateSelector = (el: HTMLElement): string => {
+    // Try ID first
+    if (el.id && !el.id.startsWith('live-css-editor')) {
+      return `#${CSS.escape(el.id)}`;
+    }
+
+    // Build selector from tag + classes
+    const tag = el.tagName.toLowerCase();
+    const classes = Array.from(el.classList)
+      .filter(c => !c.startsWith('live-css-editor'))
+      .map(c => `.${CSS.escape(c)}`)
+      .join('');
+
+    if (classes) return `${tag}${classes}`;
+
+    // Fallback: nth-child
+    const parent = el.parentElement;
+    if (parent) {
+      const index = Array.from(parent.children).indexOf(el) + 1;
+      const parentSelector = generateSelector(parent);
+      return `${parentSelector} > ${tag}:nth-child(${index})`;
+    }
+
+    return tag;
+  };
+
   const handleColorChange = (color: ColorInfo, newColorValue: string) => {
     console.log('[Color Change]', color.property, ':', color.value, '->', newColorValue);
 
+    // Strategy 1: CSS Variables (works great in Lovable/shadcn)
     if (color.isCSSVariable && color.cssVariableName) {
-      // Apply CSS variable change
       styleInjector.applyCSSVariable(color.cssVariableName, newColorValue);
 
       addChange({
@@ -120,41 +151,67 @@ export const CSSEditor: React.FC<CSSEditorProps> = ({
 
       console.log('[Color Change] Applied CSS variable:', color.cssVariableName);
     } else {
-      // Find all elements that have this exact color in computed styles
-      const elementsWithColor: HTMLElement[] = [];
+      // Strategy 2: Find matching selectors from parsed CSS rules
       const normalizedSearchColor = normalizeColorForComparison(color.value);
+      const matchingSelectors: string[] = [];
 
+      parsedRules.forEach(rule => {
+        Object.entries(rule.declarations).forEach(([prop, info]: [string, any]) => {
+          if (prop === color.property || (color.property === 'background-color' && prop === 'background')) {
+            const ruleColorNormalized = normalizeColorForComparison(info.value);
+            if (ruleColorNormalized === normalizedSearchColor) {
+              matchingSelectors.push(rule.selector);
+            }
+          }
+        });
+      });
+
+      console.log('[Color Change] Found', matchingSelectors.length, 'matching CSS selectors');
+
+      // Inject global CSS rules for matched selectors
+      if (matchingSelectors.length > 0) {
+        const combinedSelector = matchingSelectors.join(', ');
+        styleInjector.applyInjectedRule(combinedSelector, color.property, newColorValue);
+        console.log('[Color Change] Injected CSS rule for:', combinedSelector);
+      }
+
+      // Strategy 3: Scan DOM elements and generate selectors for any we missed
+      const additionalSelectors: string[] = [];
       document.querySelectorAll('*').forEach(el => {
-        // Skip CSS Editor panel
         if (el.closest('[data-css-editor-panel]')) return;
 
         const computed = getComputedStyle(el as HTMLElement);
         const currentValue = computed.getPropertyValue(color.property);
 
-        // Normalize and compare
         if (currentValue) {
           const normalizedCurrent = normalizeColorForComparison(currentValue);
           if (normalizedCurrent === normalizedSearchColor) {
-            elementsWithColor.push(el as HTMLElement);
+            const selector = generateSelector(el as HTMLElement);
+            additionalSelectors.push(selector);
           }
         }
       });
 
-      console.log('[Color Change] Found', elementsWithColor.length, 'elements with color', color.value);
+      console.log('[Color Change] Found', additionalSelectors.length, 'elements via DOM scan');
 
-      // Apply inline style to each element (most reliable method)
-      elementsWithColor.forEach(el => {
-        el.style.setProperty(color.property, newColorValue, 'important');
-      });
+      if (additionalSelectors.length > 0) {
+        // Deduplicate
+        const uniqueSelectors = [...new Set(additionalSelectors)];
+        const combinedSelector = uniqueSelectors.join(', ');
+        styleInjector.applyInjectedRule(
+          combinedSelector,
+          color.property,
+          newColorValue
+        );
+        console.log('[Color Change] Injected CSS rule for', uniqueSelectors.length, 'element selectors');
+      }
 
       addChange({
-        selector: `/* ${elementsWithColor.length} elements */`,
+        selector: `/* ${matchingSelectors.length} rules + ${additionalSelectors.length} elements */`,
         property: color.property,
         value: newColorValue,
-        mode: 'inline'
+        mode: 'injectedRule'
       });
-
-      console.log('[Color Change] Applied to', elementsWithColor.length, 'elements');
     }
 
     // Update the color in the store

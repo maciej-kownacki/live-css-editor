@@ -13887,6 +13887,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const [isAnalyzing, setIsAnalyzing] = reactExports.useState(false);
     const [selectedColorForEdit, setSelectedColorForEdit] = reactExports.useState(null);
     const [inspectHandler] = reactExports.useState(() => new InspectModeHandler());
+    const [parsedRules, setParsedRules] = reactExports.useState([]);
     const styleInjector = useStyleInjector();
     reactExports.useEffect(() => {
       setPanelOpen(initiallyOpen);
@@ -13904,6 +13905,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         const analyzer = new CSSAnalysisEngine();
         const parsed = await analyzer.analyzeDocument();
         console.log("[CSS Editor] Parsed CSS:", parsed);
+        setParsedRules(parsed.rules);
         const extractor = new ColorExtractor();
         const extractedColors = extractor.extractAndRankColors(parsed.rules);
         console.log("[CSS Editor] Extracted colors:", extractedColors);
@@ -13931,6 +13933,21 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         setInspectMode(false);
       }
     };
+    const generateSelector = (el2) => {
+      if (el2.id && !el2.id.startsWith("live-css-editor")) {
+        return `#${CSS.escape(el2.id)}`;
+      }
+      const tag = el2.tagName.toLowerCase();
+      const classes = Array.from(el2.classList).filter((c2) => !c2.startsWith("live-css-editor")).map((c2) => `.${CSS.escape(c2)}`).join("");
+      if (classes) return `${tag}${classes}`;
+      const parent = el2.parentElement;
+      if (parent) {
+        const index2 = Array.from(parent.children).indexOf(el2) + 1;
+        const parentSelector = generateSelector(parent);
+        return `${parentSelector} > ${tag}:nth-child(${index2})`;
+      }
+      return tag;
+    };
     const handleColorChange = (color, newColorValue) => {
       console.log("[Color Change]", color.property, ":", color.value, "->", newColorValue);
       if (color.isCSSVariable && color.cssVariableName) {
@@ -13943,8 +13960,25 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         });
         console.log("[Color Change] Applied CSS variable:", color.cssVariableName);
       } else {
-        const elementsWithColor = [];
         const normalizedSearchColor = normalizeColorForComparison(color.value);
+        const matchingSelectors = [];
+        parsedRules.forEach((rule2) => {
+          Object.entries(rule2.declarations).forEach(([prop, info]) => {
+            if (prop === color.property || color.property === "background-color" && prop === "background") {
+              const ruleColorNormalized = normalizeColorForComparison(info.value);
+              if (ruleColorNormalized === normalizedSearchColor) {
+                matchingSelectors.push(rule2.selector);
+              }
+            }
+          });
+        });
+        console.log("[Color Change] Found", matchingSelectors.length, "matching CSS selectors");
+        if (matchingSelectors.length > 0) {
+          const combinedSelector = matchingSelectors.join(", ");
+          styleInjector.applyInjectedRule(combinedSelector, color.property, newColorValue);
+          console.log("[Color Change] Injected CSS rule for:", combinedSelector);
+        }
+        const additionalSelectors = [];
         document.querySelectorAll("*").forEach((el2) => {
           if (el2.closest("[data-css-editor-panel]")) return;
           const computed = getComputedStyle(el2);
@@ -13952,21 +13986,28 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           if (currentValue) {
             const normalizedCurrent = normalizeColorForComparison(currentValue);
             if (normalizedCurrent === normalizedSearchColor) {
-              elementsWithColor.push(el2);
+              const selector = generateSelector(el2);
+              additionalSelectors.push(selector);
             }
           }
         });
-        console.log("[Color Change] Found", elementsWithColor.length, "elements with color", color.value);
-        elementsWithColor.forEach((el2) => {
-          el2.style.setProperty(color.property, newColorValue, "important");
-        });
+        console.log("[Color Change] Found", additionalSelectors.length, "elements via DOM scan");
+        if (additionalSelectors.length > 0) {
+          const uniqueSelectors = [...new Set(additionalSelectors)];
+          const combinedSelector = uniqueSelectors.join(", ");
+          styleInjector.applyInjectedRule(
+            combinedSelector,
+            color.property,
+            newColorValue
+          );
+          console.log("[Color Change] Injected CSS rule for", uniqueSelectors.length, "element selectors");
+        }
         addChange({
-          selector: `/* ${elementsWithColor.length} elements */`,
+          selector: `/* ${matchingSelectors.length} rules + ${additionalSelectors.length} elements */`,
           property: color.property,
           value: newColorValue,
-          mode: "inline"
+          mode: "injectedRule"
         });
-        console.log("[Color Change] Applied to", elementsWithColor.length, "elements");
       }
       const updatedColors = colors.map(
         (c2) => c2.value === color.value ? { ...c2, value: newColorValue } : c2
